@@ -16,6 +16,7 @@ void XConsumer::HandleTranslationUnit(clang::ASTContext &context) {
 
 	auto buffer = rewriter.getRewriteBufferFor(context.getSourceManager().getMainFileID());
 
-	if (buffer != nullptr)
+	if (buffer != nullptr) {
 		buffer->write(llvm::outs());
+	}
 }

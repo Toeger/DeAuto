@@ -15,7 +15,7 @@ class XConsumer : public clang::ASTConsumer {
 
 	public:
 	explicit XConsumer(clang::ASTContext &context);
-	virtual void HandleTranslationUnit(clang::ASTContext &context) override;
+	void HandleTranslationUnit(clang::ASTContext &context) override;
 };
 
 #endif

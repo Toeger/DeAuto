@@ -14,7 +14,7 @@ namespace clang {
 
 class XFrontendAction : public clang::ASTFrontendAction {
 	public:
-	virtual std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &compiler, llvm::StringRef inFile) override;
+	std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(clang::CompilerInstance &compiler, llvm::StringRef inFile) override;
 };
 
 #endif

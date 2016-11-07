@@ -23,8 +23,9 @@ void FunctionCallFinder::run(const clang::ast_matchers::MatchFinder::MatchResult
 
 	if (const CallExpr *callExpr = result.Nodes.getNodeAs<CallExpr>("callExpr")) {
 		if (const FunctionDecl *function = callExpr->getDirectCallee()) {
-			if (result.SourceManager->isInSystemHeader(function->getSourceRange().getBegin()))
+			if (result.SourceManager->isInSystemHeader(function->getSourceRange().getBegin())) {
 				return;
+			}
 
 			functions.push_back(function->getNameAsString());
 		}
@@ -32,6 +33,7 @@ void FunctionCallFinder::run(const clang::ast_matchers::MatchFinder::MatchResult
 }
 
 void FunctionCallFinder::print(clang::raw_ostream &stream) {
-	for (auto &fn : functions)
+	for (auto &fn : functions) {
 		stream << fn << "(..)\n";
+	}
 }

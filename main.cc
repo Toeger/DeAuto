@@ -16,7 +16,7 @@ int main(int argc, const char **argv) {
 	CommonOptionsParser optionsParser(argc, argv, ctCategory);
 
 	for (auto &sourceFile : optionsParser.getSourcePathList()) {
-		if (utils::fileExists(sourceFile) == false) {
+		if (!utils::fileExists(sourceFile)) {
 			llvm::errs() << "File: " << sourceFile << " does not exist!\n";
 			return -1;
 		}
