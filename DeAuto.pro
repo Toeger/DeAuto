@@ -5,12 +5,7 @@ CONFIG -= qt
 CONFIG += no_lflags_merge
 
 SOURCES += \
-    main.cc \
-    actions/frontendaction.cc \
-    consumer/consumer.cc \
-    finder/finder.cc \
-    finder/functioncallfinder.cc \
-    utils/utils.cc
+    main.cpp
 
 INCLUDEPATH += /usr/lib/llvm-3.8/include/
 
@@ -63,9 +58,5 @@ gcc{
 }
 
 HEADERS += \
-    actions/frontendaction.h \
-    consumer/consumer.h \
-    finder/finder.h \
-    finder/functioncallfinder.h \
-    utils/utils.h
+    main.h
 
