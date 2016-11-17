@@ -21,8 +21,7 @@ static llvm::cl::extrahelp CommonHelp(clang::tooling::CommonOptionsParser::HelpM
 // A help message for this specific tool can be added afterwards.
 static llvm::cl::extrahelp MoreHelp("\nMore help text...");
 
-class DeclarationNamePrinter : public clang::ast_matchers::MatchFinder::MatchCallback {
-	public:
+struct DeclarationNamePrinter : clang::ast_matchers::MatchFinder::MatchCallback {
 	void run(const clang::ast_matchers::MatchFinder::MatchResult &result) override {
 		if (const clang::DeclStmt *ds = result.Nodes.getNodeAs<clang::DeclStmt>("declaration")) {
 			llvm::raw_os_ostream out{std::cout};
@@ -33,16 +32,14 @@ class DeclarationNamePrinter : public clang::ast_matchers::MatchFinder::MatchCal
 						continue;
 					}
 				}
-				decl->print(out, 0, true);
 				out.changeColor(out.BLUE);
-				out << " in " << result.SourceManager->getFilename(decl->getLocation());
-				out.resetColor();
-				out << ":";
-				out.changeColor(out.GREEN);
-				out << result.SourceManager->getLineNumber(result.SourceManager->getFileID(decl->getLocation()),
-														   result.SourceManager->getFileOffset(decl->getLocation()));
-				out << '\n';
-				out.resetColor();
+				decl->print(out, 0, true);
+				out.resetColor() << " in ";
+				out.changeColor(out.GREEN) << result.SourceManager->getFilename(decl->getLocation());
+				out.resetColor() << ":";
+				out.changeColor(out.YELLOW) << result.SourceManager->getLineNumber(result.SourceManager->getFileID(decl->getLocation()),
+																				   result.SourceManager->getFileOffset(decl->getLocation()));
+				out.resetColor() << '\n';
 			}
 		}
 	}
