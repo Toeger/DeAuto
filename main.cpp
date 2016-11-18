@@ -8,6 +8,7 @@
 #include <clang/Tooling/Tooling.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_os_ostream.h>
+#include <llvm/Support/FormattedStream.h>
 
 // Apply a custom category to all command-line options so that they are the
 // only ones displayed.
@@ -23,8 +24,8 @@ static llvm::cl::extrahelp MoreHelp("\nMore help text...");
 
 struct DeclarationNamePrinter : clang::ast_matchers::MatchFinder::MatchCallback {
 	void run(const clang::ast_matchers::MatchFinder::MatchResult &result) override {
+		auto &out = llvm::fdbgs();
 		if (const clang::DeclStmt *ds = result.Nodes.getNodeAs<clang::DeclStmt>("declaration")) {
-			llvm::raw_os_ostream out{std::cout};
 			for (auto &decl : ds->decls()) {
 				{
 					std::string filename = result.SourceManager->getFilename(decl->getLocation());
@@ -32,12 +33,12 @@ struct DeclarationNamePrinter : clang::ast_matchers::MatchFinder::MatchCallback 
 						continue;
 					}
 				}
-				out.changeColor(out.BLUE);
+				out.changeColor(out.CYAN, false, false);
 				decl->print(out, 0, true);
 				out.resetColor() << " in ";
-				out.changeColor(out.GREEN) << result.SourceManager->getFilename(decl->getLocation());
+				out.changeColor(out.GREEN, false, false) << result.SourceManager->getFilename(decl->getLocation());
 				out.resetColor() << ":";
-				out.changeColor(out.YELLOW) << result.SourceManager->getLineNumber(result.SourceManager->getFileID(decl->getLocation()),
+				out.changeColor(out.YELLOW, false, false) << result.SourceManager->getLineNumber(result.SourceManager->getFileID(decl->getLocation()),
 																				   result.SourceManager->getFileOffset(decl->getLocation()));
 				out.resetColor() << '\n';
 			}
