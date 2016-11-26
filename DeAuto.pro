@@ -38,7 +38,7 @@ LIBS += $$LIBS
 
 QMAKE_CXXFLAGS += -std=c++1z
 clang{
-    QMAKE_CXXFLAGS += --system-header-prefix=clang #clang bugs out and assumes system file to not be system files
+    QMAKE_CXXFLAGS += --system-header-prefix=clang #clang bugs out and assumes system files to not be system files
 }
 QMAKE_CXXFLAGS += -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS #TODO: figure out why this is necessary
 QMAKE_CXXFLAGS_DEBUG += -fno-omit-frame-pointer -Wall -ggdb -Wno-unused-parameter -Werror
