@@ -5,7 +5,8 @@ CONFIG -= qt
 CONFIG += no_lflags_merge
 
 SOURCES += \
-    main.cpp
+    main.cpp \
+    vardeclvisitor.cpp
 
 INCLUDEPATH += /usr/lib/llvm-3.8/include/
 
@@ -43,6 +44,7 @@ clang{
 QMAKE_CXXFLAGS += -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS #TODO: figure out why this is necessary
 QMAKE_CXXFLAGS_DEBUG += -fno-omit-frame-pointer -Wall -ggdb -Wno-unused-parameter -Werror
 QMAKE_CXXFLAGS_DEBUG += -fsanitize=undefined,address
+QMAKE_CXXFLAGS_RELEASE += -Wunused-parameter
 QMAKE_LFLAGS_DEBUG += -fsanitize=undefined,address
 #QMAKE_LFLAGS_DEBUG += -v
 QMAKE_CXXFLAGS_PROFILE += -DNDEBUG
@@ -58,5 +60,6 @@ gcc{
 }
 
 HEADERS += \
-    main.h
+    main.h \
+    vardeclvisitor.h
 
