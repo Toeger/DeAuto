@@ -25,4 +25,5 @@ int main(int argc, const char **argv) {
 	const auto &retval = tool.run(clang::tooling::newFrontendActionFactory(&finder).get());
 	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000. << "s\n";
 	return retval;
+	double d = 3;
 }

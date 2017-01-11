@@ -17,12 +17,17 @@ void DeclarationPrinter::run(const clang::ast_matchers::MatchFinder::MatchResult
 	auto line_column = [&result, &column, &line](clang::SourceLocation sl) { return std::to_string(line(sl)) + ":" + std::to_string(column(sl)); };
 	auto raw_text = [&result](clang::SourceLocation sl) { return result.SourceManager->getCharacterData(sl); };
 	auto string = [&result, &raw_text](clang::SourceLocation start, clang::SourceLocation end) { return std::string{raw_text(start), raw_text(end)}; };
+	auto statement = [&result, &raw_text](clang::SourceLocation location, clang::SourceLocation min) {
+		auto min_pos = raw_text(min);
+		const char *end = strchr(min_pos, ';');
+		return std::string{raw_text(location), end};
+	};
 	auto trim = [](std::string &&s) {
-		auto is_whitespace = [](char c) {
-			const auto &ws = " \t\n\r";
+		auto should_be_replaced = [](char c) {
+			const auto &ws = " \t\n\r=";
 			return std::find(std::begin(ws), std::end(ws), c) != std::end(ws);
 		};
-		while (s.empty() == false && is_whitespace(s.back())) {
+		while (s.empty() == false && should_be_replaced(s.back())) {
 			s.pop_back();
 		}
 		return s;
@@ -33,14 +38,18 @@ void DeclarationPrinter::run(const clang::ast_matchers::MatchFinder::MatchResult
 		if (filename.find("main.cpp") == std::string::npos) {
 			return;
 		}
-		const auto original_expression = trim(string(vd->getLocStart(), vd->getLocEnd()));
+		const auto original_expression = statement(vd->getLocStart(), vd->getLocEnd());
 		os << os.GREEN << vd->getType().getAsString() << ' ' << vd->getName() << os.SAVEDCOLOR << '\n';
-		os << "\tOriginal Expression: " << os.GREEN << original_expression << os.SAVEDCOLOR << os.SAVEDCOLOR << ':' << os.YELLOW
-		   << line_column(vd->getLocStart()) << os.SAVEDCOLOR << '-' << os.YELLOW << line_column(vd->getLocEnd()) << os.SAVEDCOLOR << '\n';
+		os << "\tOriginal Expression: " << os.GREEN << original_expression << os.SAVEDCOLOR << " : " << os.YELLOW << line_column(vd->getLocStart())
+		   << os.SAVEDCOLOR << '-' << os.YELLOW << line_column(vd->getLocEnd()) << os.SAVEDCOLOR << '\n';
 
 		os << "\tVariable: " << os.GREEN << vd->getName() << os.SAVEDCOLOR << '\n';
 		os << "\tOriginal Type: " << os.GREEN << trim(string(vd->getLocStart(), vd->getLocation())) << os.YELLOW << ' ' << line_column(vd->getLocStart())
 		   << os.SAVEDCOLOR << '-' << os.YELLOW << line_column(vd->getLocation()) << os.SAVEDCOLOR << '\n';
 		os << "\tReal Type: " << os.GREEN << vd->getType().getAsString() << os.SAVEDCOLOR << '\n';
+		os << "\tInitializer type: " << os.GREEN << "TODO" << os.SAVEDCOLOR << '\n';
+		if (auto init = vd->getAnyInitializer()) {
+			//init->getType().dump();
+		}
 	}
 }
