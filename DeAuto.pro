@@ -3,6 +3,7 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 CONFIG += no_lflags_merge
+CONFIG += warn_off
 
 SOURCES += \
     main.cpp \
@@ -42,9 +43,9 @@ clang{
     QMAKE_CXXFLAGS += --system-header-prefix=clang #clang bugs out and assumes system files to not be system files
 }
 QMAKE_CXXFLAGS += -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS #TODO: figure out why this is necessary
-QMAKE_CXXFLAGS_DEBUG += -fno-omit-frame-pointer -Wall -ggdb -Wno-unused-parameter -Werror
+QMAKE_CXXFLAGS_DEBUG += -fno-omit-frame-pointer -Wall -ggdb -Wno-unused-parameter -Wno-unused-variable -Werror
 QMAKE_CXXFLAGS_DEBUG += -fsanitize=undefined,address
-QMAKE_CXXFLAGS_RELEASE += -Wunused-parameter
+QMAKE_CXXFLAGS_RELEASE += -Wunused-parameter -Wunused-variable
 QMAKE_LFLAGS_DEBUG += -fsanitize=undefined,address
 #QMAKE_LFLAGS_DEBUG += -v
 QMAKE_CXXFLAGS_PROFILE += -DNDEBUG
