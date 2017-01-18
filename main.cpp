@@ -7,8 +7,6 @@
 #include <iostream>
 #include <llvm/Support/CommandLine.h>
 
-llvm::formatted_raw_ostream &DeclarationPrinter::os = llvm::fdbgs();
-
 int main(int argc, const char **argv) {
 	auto start = std::chrono::high_resolution_clock::now();
 	std::ios::sync_with_stdio(false);
@@ -25,5 +23,4 @@ int main(int argc, const char **argv) {
 	const auto &retval = tool.run(clang::tooling::newFrontendActionFactory(&finder).get());
 	std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() / 1000. << "s\n";
 	return retval;
-	double d = 3;
 }

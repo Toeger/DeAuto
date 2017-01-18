@@ -1,5 +1,9 @@
 #include "vardeclvisitor.h"
 
+#include <llvm/Support/FormattedStream.h>
+
+llvm::formatted_raw_ostream &DeclarationPrinter::os = llvm::fdbgs();
+
 static llvm::raw_ostream &operator<<(llvm::raw_ostream &os, llvm::formatted_raw_ostream::Colors color) {
 	if (color == os.SAVEDCOLOR) {
 		return os.resetColor();
@@ -24,7 +28,7 @@ void DeclarationPrinter::run(const clang::ast_matchers::MatchFinder::MatchResult
 	};
 	auto trim = [](std::string &&s) {
 		auto should_be_replaced = [](char c) {
-			const auto &ws = " \t\n\r=";
+			const auto &ws = " \t\n\r";
 			return std::find(std::begin(ws), std::end(ws), c) != std::end(ws);
 		};
 		while (s.empty() == false && should_be_replaced(s.back())) {
@@ -35,7 +39,7 @@ void DeclarationPrinter::run(const clang::ast_matchers::MatchFinder::MatchResult
 
 	if (const clang::VarDecl *vd = result.Nodes.getNodeAs<clang::VarDecl>("declaration")) {
 		const auto &filename = result.SourceManager->getFilename(vd->getLocation());
-		if (filename.find("main.cpp") == std::string::npos) {
+		if (filename.find("test.cpp") == std::string::npos) {
 			return;
 		}
 		const auto original_expression = statement(vd->getLocStart(), vd->getLocEnd());
@@ -48,8 +52,12 @@ void DeclarationPrinter::run(const clang::ast_matchers::MatchFinder::MatchResult
 		   << os.SAVEDCOLOR << '-' << os.YELLOW << line_column(vd->getLocation()) << os.SAVEDCOLOR << '\n';
 		os << "\tReal Type: " << os.GREEN << vd->getType().getAsString() << os.SAVEDCOLOR << '\n';
 		os << "\tInitializer type: " << os.GREEN << "TODO" << os.SAVEDCOLOR << '\n';
-		if (auto init = vd->getAnyInitializer()) {
-			//init->getType().dump();
+		if (auto init = vd->getInit()) {
+			if (const clang::ImplicitCastExpr *ice = clang::dyn_cast<const clang::ImplicitCastExpr>(init)) {
+				os << "\tType: " << os.GREEN << ice->getType().getAsString() << os.SAVEDCOLOR << '\n';
+				os << "\tCast Type: " << os.GREEN << ice->getCastKindName() << os.SAVEDCOLOR << '\n';
+				ice->getSubExpr()->dumpColor();
+			}
 		}
 	}
 }

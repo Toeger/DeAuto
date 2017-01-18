@@ -9,7 +9,7 @@ SOURCES += \
     main.cpp \
     vardeclvisitor.cpp
 
-INCLUDEPATH += /usr/lib/llvm-3.8/include/
+INCLUDEPATH += /usr/lib/llvm-3.9/include/
 
 LIBS += -lclangFrontend
 LIBS += -lclangDriver
@@ -52,7 +52,7 @@ QMAKE_CXXFLAGS_PROFILE += -DNDEBUG
 QMAKE_CXXFLAGS_RELEASE += -O3 -DNDEBUG
 gcc{
     clang{
-        #clang counts as gcc but doesn't support -flto
+        #clang is identified as gcc but doesn't support -flto
     }
     else{
         QMAKE_CXXFLAGS_RELEASE += -flto
