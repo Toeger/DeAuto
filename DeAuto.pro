@@ -64,3 +64,6 @@ HEADERS += \
     main.h \
     vardeclvisitor.h
 
+DISTFILES += \
+    test.cpp
+

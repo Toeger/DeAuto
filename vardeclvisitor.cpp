@@ -51,12 +51,12 @@ void DeclarationPrinter::run(const clang::ast_matchers::MatchFinder::MatchResult
 		os << "\tOriginal Type: " << os.GREEN << trim(string(vd->getLocStart(), vd->getLocation())) << os.YELLOW << ' ' << line_column(vd->getLocStart())
 		   << os.SAVEDCOLOR << '-' << os.YELLOW << line_column(vd->getLocation()) << os.SAVEDCOLOR << '\n';
 		os << "\tReal Type: " << os.GREEN << vd->getType().getAsString() << os.SAVEDCOLOR << '\n';
-		os << "\tInitializer type: " << os.GREEN << "TODO" << os.SAVEDCOLOR << '\n';
 		if (auto init = vd->getInit()) {
 			if (const clang::ImplicitCastExpr *ice = clang::dyn_cast<const clang::ImplicitCastExpr>(init)) {
 				os << "\tType: " << os.GREEN << ice->getType().getAsString() << os.SAVEDCOLOR << '\n';
-				os << "\tCast Type: " << os.GREEN << ice->getCastKindName() << os.SAVEDCOLOR << '\n';
-				ice->getSubExpr()->dumpColor();
+				if (const auto expr = ice->getSubExpr()) {
+					os << "\tInitializer type: " << os.GREEN << expr->getType().getAsString() << os.SAVEDCOLOR << '\n';
+				}
 			}
 		}
 	}
