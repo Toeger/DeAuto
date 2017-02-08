@@ -11,6 +11,18 @@ static llvm::raw_ostream &operator<<(llvm::raw_ostream &os, llvm::formatted_raw_
 	return os.changeColor(color, false, false);
 }
 
+std::string to_string(const clang::QualType &t){
+	std::string name;
+	if (t.isConstQualified()){
+		name = "const ";
+	}
+	if (t.isVolatileQualified()){
+		name += "volatile ";
+	}
+	name += t.getAsString();
+	return name;
+}
+
 void DeclarationPrinter::run(const clang::ast_matchers::MatchFinder::MatchResult &result) {
 	auto column = [&result](clang::SourceLocation sl) {
 		return result.SourceManager->getColumnNumber(result.SourceManager->getFileID(sl), result.SourceManager->getFileOffset(sl));
@@ -50,10 +62,10 @@ void DeclarationPrinter::run(const clang::ast_matchers::MatchFinder::MatchResult
 		os << "\tVariable: " << os.GREEN << vd->getName() << os.SAVEDCOLOR << '\n';
 		os << "\tOriginal Type: " << os.GREEN << trim(string(vd->getLocStart(), vd->getLocation())) << os.YELLOW << ' ' << line_column(vd->getLocStart())
 		   << os.SAVEDCOLOR << '-' << os.YELLOW << line_column(vd->getLocation()) << os.SAVEDCOLOR << '\n';
-		os << "\tReal Type: " << os.GREEN << vd->getType().getAsString() << os.SAVEDCOLOR << '\n';
+		os << "\tReal Type: " << os.GREEN << to_string(vd->getType()) << os.SAVEDCOLOR << '\n';
 		if (auto init = vd->getInit()) {
 			if (const clang::ImplicitCastExpr *ice = clang::dyn_cast<const clang::ImplicitCastExpr>(init)) {
-				os << "\tType: " << os.GREEN << ice->getType().getAsString() << os.SAVEDCOLOR << '\n';
+				os << "\tType: " << os.GREEN << to_string(ice->getType()) << os.SAVEDCOLOR << '\n';
 				if (const auto expr = ice->getSubExpr()) {
 					os << "\tInitializer type: " << os.GREEN << expr->getType().getAsString() << os.SAVEDCOLOR << '\n';
 				}
