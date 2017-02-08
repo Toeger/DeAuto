@@ -45,7 +45,7 @@ clang{
 QMAKE_CXXFLAGS += -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS #TODO: figure out why this is necessary
 QMAKE_CXXFLAGS_DEBUG += -fno-omit-frame-pointer -Wall -ggdb -Wno-unused-parameter -Wno-unused-variable -Werror
 QMAKE_CXXFLAGS_DEBUG += -fsanitize=undefined,address
-QMAKE_CXXFLAGS_RELEASE += -Wunused-parameter -Wunused-variable
+QMAKE_CXXFLAGS_RELEASE += -Wunused-parameter -Wunused-variable -Werror
 QMAKE_LFLAGS_DEBUG += -fsanitize=undefined,address
 #QMAKE_LFLAGS_DEBUG += -v
 QMAKE_CXXFLAGS_PROFILE += -DNDEBUG
