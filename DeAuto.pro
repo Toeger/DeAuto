@@ -7,7 +7,8 @@ CONFIG += warn_off
 
 SOURCES += \
     main.cpp \
-    vardeclvisitor.cpp
+    vardeclvisitor.cpp \
+    file_edit.cpp
 
 INCLUDEPATH += /usr/lib/llvm-3.9/include/
 
@@ -62,7 +63,8 @@ gcc{
 
 HEADERS += \
     main.h \
-    vardeclvisitor.h
+    vardeclvisitor.h \
+    file_edit.h
 
 DISTFILES += \
     test.cpp
