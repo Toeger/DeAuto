@@ -16,7 +16,6 @@
 std::vector<const char *> get_fake_args() {
 	//TODO: load this from a config file or something
 	auto buffer =
-		"test.cpp\0"
 		"--\0"
 		"--std=c++1z\0"
 		"-D__STDC_CONSTANT_MACROS\0"
@@ -60,6 +59,7 @@ int main(int argc, const char **argv) {
 	auto range = argc >= 3 ? from_string<unsigned int>(argv[3]) : 1u;
 
 	auto fake_args = get_fake_args();
+	fake_args.insert(std::begin(fake_args), filename);
 	fake_args.insert(std::begin(fake_args), argv[0]);
 	int fake_argc = static_cast<int>(fake_args.size());
 	const char **fake_argv = fake_args.data();
