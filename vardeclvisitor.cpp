@@ -1,11 +1,10 @@
 #include "vardeclvisitor.h"
+#include "assume.h"
 #include "file_edit.h"
 
 #include <experimental/string_view>
 #include <fstream>
 #include <llvm/Support/FormattedStream.h>
-
-namespace stde = std::experimental;
 
 llvm::formatted_raw_ostream &DeclarationPrinter::os = llvm::fdbgs();
 
@@ -16,7 +15,7 @@ static llvm::raw_ostream &operator<<(llvm::raw_ostream &os, llvm::formatted_raw_
 	return os.changeColor(color, false, false);
 }
 
-std::string to_string(const clang::QualType &t) {
+static std::string to_string(const clang::QualType &t) {
 	std::string name;
 	if (t.isConstQualified()) {
 		name = "const ";
@@ -28,7 +27,28 @@ std::string to_string(const clang::QualType &t) {
 	return name;
 }
 
-DeclarationPrinter::DeclarationPrinter(std::string filename, unsigned int line, unsigned int range)
+static bool contains_full_word(string_view text, string_view word, string_view separators) {
+	const auto contains = [](string_view text, std::size_t pos, string_view characters) {
+		if (pos >= text.size()) {
+			return true;
+		}
+		return characters.find(text[pos]) != string_view::npos;
+	};
+	for (std::size_t pos = text.find(word, 0); pos != string_view::npos; pos = text.find(word, pos)) {
+		if (contains(text, pos - 1, separators) || contains(text, pos + word.size(), separators)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+DeclarationPrinter::DeclarationPrinter(boost::filesystem::path filename)
+	: DeclarationPrinter(std::move(filename), 1, -1) {}
+
+DeclarationPrinter::DeclarationPrinter(boost::filesystem::path filename, unsigned int line)
+	: DeclarationPrinter(std::move(filename), line, 1) {}
+
+DeclarationPrinter::DeclarationPrinter(boost::filesystem::path filename, unsigned int line, unsigned int range)
 	: filename(std::move(filename))
 	, line(line)
 	, range(range)
@@ -53,11 +73,9 @@ void DeclarationPrinter::run(const clang::ast_matchers::MatchFinder::MatchResult
 		const char *end = strchr(min_pos, ';');
 		return std::string{get_raw_text(location), end};
 	};
+	const auto &ws = " \t\n\r";
 	auto trim = [](std::string &&s) {
-		auto should_be_replaced = [](char c) {
-			const auto &ws = " \t\n\r";
-			return std::find(std::begin(ws), std::end(ws), c) != std::end(ws);
-		};
+		auto should_be_replaced = [](char c) { return std::find(std::begin(ws), std::end(ws), c) != std::end(ws); };
 		while (s.empty() == false && should_be_replaced(s.back())) {
 			s.pop_back();
 		}
@@ -65,18 +83,18 @@ void DeclarationPrinter::run(const clang::ast_matchers::MatchFinder::MatchResult
 	};
 
 	if (const clang::VarDecl *vd = result.Nodes.getNodeAs<clang::VarDecl>("declaration")) {
-		if (result.SourceManager->getFilename(vd->getLocation()).find(this->filename) == std::string::npos) {
+		if (result.SourceManager->getFilename(vd->getLocation()) == filename) {
 			return;
 		}
 		auto current_line = get_line(vd->getLocation());
-		if (current_line < line || current_line >= line + range) {
+		if (current_line < line || current_line - line >= range) {
 			return;
 		}
 		const auto original_expression = get_statement(vd->getLocStart(), vd->getLocEnd());
 		const auto original_type = trim(get_string(vd->getLocStart(), vd->getLocation()));
 		const auto real_type = to_string(vd->getType());
 
-		if (original_type.find(" auto ") == std::string::npos) {
+		if (!contains_full_word(original_type, "auto", ws)) {
 			return;
 		}
 

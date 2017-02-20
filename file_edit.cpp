@@ -1,4 +1,5 @@
 #include "file_edit.h"
+#include "utility.h"
 
 #include <fstream>
 #include <iostream>
@@ -12,22 +13,21 @@ static void replace(std::string &original, string_view old_text, string_view new
 	original.replace(pos, old_text.size(), new_text.to_string());
 }
 
-static std::string get_temp_filename(string_view original) {
-	//TODO: make this work on all platforms with relative and absolute paths
-	original.remove_prefix(original.rfind('/') + 1);
-	return "/tmp/" + original.to_string();
+static std::string get_temp_filename(boost::filesystem::path original) {
+	return std::string{} + "/tmp/" + original.filename().c_str();
 }
 
-File_edit::File_edit(std::string filename)
-	: input{filename}
-	, output(get_temp_filename(filename))
+File_edit::File_edit(boost::filesystem::path filename)
+	: input{filename.c_str()}
+	, output(get_temp_filename(filename.c_str()))
 	, filename(std::move(filename)) {}
 
 File_edit::~File_edit() {
 	for (std::string text_line; std::getline(input, text_line);) {
 		output << text_line << '\n';
 	}
-	//TODO: move the file get_temp_filename(filename) to filename
+	output.close();
+	Utility::copy_file(get_temp_filename(filename), filename);
 }
 
 void File_edit::modify(int line, string_view old_text, string_view new_text) {

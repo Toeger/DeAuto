@@ -3,17 +3,21 @@
 
 #include "file_edit.h"
 
+#include <boost/filesystem/path.hpp>
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <string>
 
-namespace llvm{
+namespace llvm {
 	class formatted_raw_ostream;
 }
 
 struct DeclarationPrinter : clang::ast_matchers::MatchFinder::MatchCallback {
-	DeclarationPrinter(std::string filename, unsigned int line, unsigned int range);
+	DeclarationPrinter(boost::filesystem::path filename);
+	DeclarationPrinter(boost::filesystem::path filename, unsigned int line);
+	DeclarationPrinter(boost::filesystem::path filename, unsigned int line, unsigned int range);
+
 	private:
-	std::string filename{};
+	boost::filesystem::path filename{};
 	unsigned int line{0};
 	unsigned int range{0};
 	File_edit file_edit;
